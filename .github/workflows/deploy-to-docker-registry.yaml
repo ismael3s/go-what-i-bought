@@ -59,6 +59,6 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:latest
-            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ env.BRANCH_NAME }}${{ steps.vars.outputs.sha_short }}
+            ${{ secrets.DOCKER_USERNAME }}/${{ github.event.repository.name }}:${{ env.BRANCH_NAME }}-${{ steps.vars.outputs.sha_short }}
           context: .
           file: ./Dockerfile
