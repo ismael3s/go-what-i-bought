@@ -16,12 +16,17 @@ type ItemOutput struct {
 	Unit       string  `json:"unit"`
 }
 
+type findNfDataUseCaseMarketOutput struct {
+	Name        string `json:"name"`
+	FantasyName string `json:"fantasyName"`
+	Cnpj        string `json:"cnpj"`
+	Address     string `json:"address"`
+}
+
 type FindNfDataUseCaseOutput struct {
-	Url         string       `json:"url"`
-	FantasyName string       `json:"fantasyName"`
-	FullAddress string       `json:"fullAddress"`
-	Cnpj        string       `json:"cnpj"`
-	Items       []ItemOutput `json:"items"`
+	Url    string                        `json:"url"`
+	Market findNfDataUseCaseMarketOutput `json:"market"`
+	Items  []ItemOutput                  `json:"items"`
 }
 
 type FindNfDataUseCase struct {
@@ -38,24 +43,26 @@ func NewFindNfDataUsecase(fazendaGateway ports.FazendaGateway, cnpjGateway ports
 }
 
 func (u *FindNfDataUseCase) Execute(input FindNfDataUseCaseInput) (*FindNfDataUseCaseOutput, error) {
-	market, err := u.fazendaGateway.FindBuyInfo(input.Url)
+	purchase, err := u.fazendaGateway.FindBuyInfo(input.Url)
 	if err != nil {
 		return nil, err
 	}
-	enterprise, err := u.cnpjGateway.FindEnterpriseByCNPJ(market.Cnpj)
+	enterprise, err := u.cnpjGateway.FindEnterpriseByCNPJ(purchase.Market.Cnpj)
 	if err != nil {
 		return nil, err
 	}
-	market.UpdateName("")
-	market.UpdateFantasyName(enterprise.FantasyName)
+	purchase.Market.UpdateFantasyName(enterprise.FantasyName)
 	output := &FindNfDataUseCaseOutput{
-		Url:         input.Url,
-		FantasyName: enterprise.FantasyName,
-		FullAddress: market.FullAddress,
-		Cnpj:        market.Cnpj.RawValue(),
-		Items:       []ItemOutput{},
+		Url: input.Url,
+		Market: findNfDataUseCaseMarketOutput{
+			Name:        purchase.Market.Name,
+			FantasyName: purchase.Market.FantasyName,
+			Cnpj:        purchase.Market.Cnpj.RawValue(),
+			Address:     purchase.Market.Address,
+		},
+		Items: []ItemOutput{},
 	}
-	for _, item := range market.Items {
+	for _, item := range purchase.Items {
 		output.Items = append(output.Items, ItemOutput{
 			Name:       item.Name,
 			Quantity:   item.Quantity,

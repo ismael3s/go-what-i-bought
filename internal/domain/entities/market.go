@@ -4,18 +4,16 @@ type Market struct {
 	Name        string
 	FantasyName string
 	Cnpj        *CNPJ
-	FullAddress string
-	Items       []*Item
+	Address     string
 }
 
-func NewMarket() *Market {
+func NewMarket(name, address string, cnpj *CNPJ) *Market {
 	return &Market{
-		Items: []*Item{},
+		Name:        name,
+		FantasyName: "",
+		Cnpj:        cnpj,
+		Address:     address,
 	}
-}
-
-func (m *Market) AddItem(item *Item) {
-	m.Items = append(m.Items, item)
 }
 
 func (m *Market) UpdateFantasyName(fantasyName string) {
@@ -27,5 +25,25 @@ func (m *Market) UpdateName(name string) {
 }
 
 func (m *Market) UpdateAddress(address string) {
-	m.FullAddress = address
+	m.Address = address
+}
+
+type Purchase struct {
+	Market Market
+	Items  []*Item
+	URL    string
+}
+
+func NewPurchase(url string) *Purchase {
+	return &Purchase{
+		URL: url,
+	}
+}
+
+func (p *Purchase) AddItem(item *Item) {
+	p.Items = append(p.Items, item)
+}
+
+func (p *Purchase) UpdateMarket(market Market) {
+	p.Market = market
 }
